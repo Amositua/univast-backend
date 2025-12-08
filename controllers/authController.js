@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
@@ -200,4 +201,33 @@ export const resendForgotPasswordCode = async (req, res) => {
   await sendResetPasswordEmail(email, newCode);
 
   res.status(200).json({ message: 'Reset code resent to email.' });
+};
+
+
+export const updateProfile = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const userId = req.user.id;
+    const { name, password } = req.body;
+
+    const updateData = { name };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 12);
+      updateData.password = hashedPassword;
+    }
+
+    await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    res.json({ success: true, message: "Profile updated" });
+  } catch (err) {
+    console.error(err); // VERY IMPORTANT
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
