@@ -56,3 +56,38 @@ export const updateProfile = async (req, res) => {
     return res.status(500).json({ error: 'Server error while updating profile' });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized" 
+      });
+    }
+
+    const userId = req.user.id;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "User account deleted successfully"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+

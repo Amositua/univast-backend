@@ -8,6 +8,7 @@ import { generateAccessToken } from '../utils/token.js';
 import sendVerificationEmail from '../utils/sendVerificationEmail.js';
 import sendResetPasswordEmail from '../utils/sendResendPasswordEmail.js';
 import sendCongratulationEmail from '../utils/sendCongratulationEmail.js';
+import { create } from 'domain';
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -29,6 +30,7 @@ export const register = async (req, res) => {
       password,
       verificationCode,
       verificationCodeExpires: codeExpires,
+      createdAt: new Date(),
     });
    
     // Send email with better error handling
@@ -51,6 +53,7 @@ export const register = async (req, res) => {
         id: user._id, 
         name: user.name, 
         email: user.email, 
+        createdAt: user.createdAt,
         // education: user.education 
       }, 
       // token: '123456' 
