@@ -2,13 +2,18 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { connectDB } from '../utils/db.js';
 
+/* ========================= GET USER ========================= */
 export const getUser = async (req, res) => {
   try {
+    await connectDB(); // ✅ DB CONNECT
+
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
     res.json({ user });
   } catch (err) {
     console.error(err);
@@ -16,8 +21,11 @@ export const getUser = async (req, res) => {
   }
 };
 
+/* ========================= UPDATE PROFILE ========================= */
 export const updateProfile = async (req, res) => {
   try {
+    await connectDB(); // ✅ DB CONNECT
+
     const { email, password } = req.body;
     const user = await User.findById(req.user.id);
 
@@ -36,7 +44,7 @@ export const updateProfile = async (req, res) => {
 
     // If password is provided
     if (password && password.trim() !== '') {
-      user.password = password; // plain text; will be hashed by pre('save')
+      user.password = password; // will be hashed by pre('save')
     }
 
     await user.save();
@@ -57,8 +65,11 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+/* ========================= DELETE USER ========================= */
 export const deleteUser = async (req, res) => {
   try {
+    await connectDB(); // ✅ DB CONNECT
+
     if (!req.user || !req.user.id) {
       return res.status(401).json({ 
         success: false, 
@@ -90,4 +101,3 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
-
