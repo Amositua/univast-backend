@@ -69,7 +69,7 @@ export const updateProfile = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     await connectDB(); // ✅ DB CONNECT
-
+    
     if (!req.user || !req.user.id) {
       return res.status(401).json({ 
         success: false, 
@@ -78,6 +78,37 @@ export const deleteUser = async (req, res) => {
     }
 
     const userId = req.user.id;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "User account deleted successfully"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+
+
+export const deleteUserByAdmin = async (req, res) => {
+  try {
+    await connectDB(); // ✅ DB CONNECT
+
+    const { userId } = req.body;
 
     const user = await User.findByIdAndDelete(userId);
 
